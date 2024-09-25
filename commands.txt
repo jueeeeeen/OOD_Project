@@ -1,0 +1,5 @@
+git branch branchname สร้าง branch
+git commit -m message
+git checkout branchname เปลี่ยน branch
+git checkout -b branchname เปลี่ยนไปอันสร้างใหม่
+git merge branchname รวม branch เข้ากับ branch ปจบ
