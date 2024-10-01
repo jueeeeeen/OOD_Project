@@ -74,6 +74,8 @@ class AVL:
             node.left = AVL._insert(node.left, data)
         elif int(data) > int(node.data):
             node.right = AVL._insert(node.right, data)
+        else:
+            return
             
         node.set_height()        
         new_root = AVL.rebalance(node)
