@@ -1,5 +1,5 @@
 import time
-from memory_profiler import profile, memory_usage
+from memory_profiler import profile
 
 class Room_Node:
     def __init__(self, room_number, channel, left = None, right = None):
@@ -42,7 +42,7 @@ class AVL:
         elif room_number > node.room_number:
             node.right = self._insert(node.right, room_number, channel)
         else:
-            print(f"The room number {room_number} is reserved.")
+            print(f"Already added {room_number}")
             
         node.set_height()        
         new_root = AVL.rebalance(node)
@@ -94,11 +94,11 @@ class AVL:
         else:
             if root.left is None:
                 self.size -= 1
-                print(f"deleted room", end = " ")
+                print(f"Deleted room", end = " ")
                 return root.right
             elif root.right is None:
                 self.size -= 1
-                print(f"deleted room", end = " ")
+                print(f"Deleted room", end = " ")
                 return root.left
             new_root = AVL.get_successor(root.right)
             root.room_number = new_root.room_number
@@ -125,87 +125,110 @@ class AVL:
             print('    '*level + str(node) )
             AVL._print_tree(node.left, level+1)
 
-    def _inorder_sort(node, f):
+    def inorder_sort(node, f):
         if node is not None:
-            AVL._inorder_sort(node.left, f)
+            AVL.inorder_sort(node.left, f)
             f.write(node.show_room() + "\n\n")
-            AVL._inorder_sort(node.right, f)
-            
-    def write_to_file(self):
-        with open("Hotel_Rooms", "w") as f:
-            AVL._inorder_sort(self.root, f)
+            AVL.inorder_sort(node.right, f)
     
     def get_last_room(self):
         return AVL._get_last_room(self.root)
     
     def _get_last_room(node):
         if node.right is None:
-            return node.room_number
+            return node
         else:
             return AVL._get_last_room(node.right)
-        
-    def runtime(func):
-        def wrapper(*args, **kwargs):
-            start_time = time.time()
-            result = func(*args, **kwargs)
-            end_time = time.time()
-            print(f"Runtime: {end_time - start_time:.5f} seconds")
-            return result
-        return wrapper
-    
-    @runtime
-    @profile    
-    def add_room(self, room_number):
-        self.insert(room_number, "manual")
-        self.write_to_file()
-            
-    @runtime
-    @profile
-    def assign_rooms(self, plane, ship, train, car, guest):
-        for p in range(plane):
-            for s in range(ship):
-                for t in range(train):
-                    for c in range(car):
-                        for g in range(guest):
-                            self.insert(AVL.morton_curve(p, s, t, c, g), f"no_{p+1}_{s+1}_{t+1}_{c+1}_{g+1}")
-        self.write_to_file()
-        self.show_number_of_reserved_room()
-    
-        
-    @runtime
-    @profile  
-    def delete_room(self, room_number):
-        self.delete(room_number)
-        self.write_to_file()
-    
-    @runtime
-    @profile    
-    def search_room(self, room_number):
-        print(self.search(room_number))
-    
-    @runtime
-    @profile
-    def show_number_of_reserved_room(self):
-        print(f"Reserved rooms : {self.size:,} rooms")
-    
-    @runtime
-    @profile    
-    def show_number_of_empty_room(self):
-        print(f"Empty rooms : {self.get_last_room() - self.size:,} rooms")
-        
-    def morton_curve(p, s, t, c, g):
-        args = (p, s, t, c, g)
-        result = 0
-        for i in range(max(x.bit_length() for x in args)):
-            for j, num in enumerate(args):
-                result |= ((num >> i) & 1) << (i * len(args) + j)
-        return result
         
 class Hotel:
     def __init__(self):
         self.AVL_hotel = AVL()
         
-hotel = AVL()                            
+    # formula for calculating the room number for each guest
+    def morton_curve(p, s, t, c, g):
+        args = (p, s, t, c, g)
+        max_bits = max(arg.bit_length() for arg in args)
+        result = 0
+        
+        for i in range(max_bits):
+            result |= ((p >> i) & 1) << (i * 5 + 0)
+            result |= ((s >> i) & 1) << (i * 5 + 1)
+            result |= ((t >> i) & 1) << (i * 5 + 2)
+            result |= ((c >> i) & 1) << (i * 5 + 3)
+            result |= ((g >> i) & 1) << (i * 5 + 4)
+        
+        return result
+    
+    # to measure runtime in each function
+    def runtime(func):
+        def wrapper(*args):
+            start_time = time.time()
+            result = func(*args)
+            end_time = time.time()
+            print(f"Runtime: {end_time - start_time:.5f} seconds")
+            return result
+        return wrapper
+    
+    # sort the room number in AVL using inorder and write to file
+    def write_to_file(self):
+        with open("Hotel_Rooms", "w") as f:
+            AVL.inorder_sort(self.AVL_hotel.root, f)
+    
+    # assign rooms for the guests from channels
+    @runtime
+    @profile
+    def assign_rooms(self, plane, ship, train, car, guest):
+        total_rooms = plane * ship * train * car * guest
+        for i in range(total_rooms):
+            p = (i // (ship * train * car * guest)) % plane
+            s = (i // (train * car * guest)) % ship
+            t = (i // (car * guest)) % train
+            c = (i // guest) % car
+            g = i % guest
+            
+            self.AVL_hotel.insert(Hotel.morton_curve(p, s, t, c, g), f"no_{p+1}_{s+1}_{t+1}_{c+1}_{g+1}")
+        self.write_to_file()
+        
+    # delete a room number manually    
+    @runtime
+    @profile  
+    def delete_room(self, room_number):
+        self.AVL_hotel.delete(room_number)
+        self.write_to_file()
+        print(room_number)
+    
+    # add a room number manually
+    @runtime
+    @profile   
+    def add_room(self, room_number):
+        self.AVL_hotel.insert(room_number, "manual")
+        self.write_to_file()
+    
+    # search for a room number    
+    @runtime
+    @profile    
+    def search_room(self, room_number):
+        print(self.AVL_hotel.search(room_number))
+    
+    # show a number of the empty rooms
+    @runtime
+    @profile    
+    def show_number_of_empty_room(self):
+        print(f"Empty rooms : {self.AVL_hotel.get_last_room().room_number - self.AVL_hotel.size:,} rooms")
+        
+    # (additional) show a number of the reserved rooms (nodes in AVL)
+    @runtime
+    @profile
+    def show_number_of_reserved_room(self):
+        print(f"Reserved rooms : {self.AVL_hotel.size:,} rooms")
+
+    # (additional) show last room number (biggest room number)
+    @runtime
+    @profile
+    def show_last_room_number(self):
+        print(f"last_room :\n{self.AVL_hotel.get_last_room().show_room()}")
+        
+hotel = Hotel()      
 print("\n------------ Welcome to 404 Hotel Not Found ------------\n")
 print("Please Enter a number of each traveling channel (stack)")
 print("|   Plane   |   Ship   |   Train   |   Car   |  Guest  |")
@@ -230,42 +253,30 @@ while True:
     print("[s] search <room number>")
     print("[r] show number of reserved room")
     print("[e] show number of empty room")
+    print("[l] show the last room")
     print("[q] exit")
     inp = input("Select mode : ")
     try:
         if inp == "e":
             print("--------------------------------------")
-            start_time = time.time()
             hotel.show_number_of_empty_room()
-            end_time = time.time()
-            print(f"runtime: {end_time-start_time:.4f} seconds")
         elif inp == "q":
             break
         elif inp == "r":
             print("--------------------------------------")
-            start_time = time.time()
             hotel.show_number_of_reserved_room()
-            end_time = time.time()
-            print(f"runtime: {end_time-start_time:.4f} seconds")
+        elif inp == "l":
+            print("--------------------------------------")
+            hotel.show_last_room_number()
         elif inp[0] == "a":
             print(f"--------Adding room {inp[2:]}--------")
-            start_time = time.time()
             hotel.add_room(int(inp[2:]))
-            end_time = time.time()
-            print(f"runtime: {end_time-start_time:.4f} seconds")
         elif inp[0] == "d":
             print(f"-------Deleting room {inp[2:]}-------")
-            start_time = time.time()
             hotel.delete_room(int(inp[2:]))
-            print(inp[2:])
-            end_time = time.time()
-            print(f"runtime: {end_time-start_time:.4f} seconds")
         elif inp[0] == "s":
             print(f"-------Searching room {inp[2:]}-------")
-            start_time = time.time()
             hotel.search_room(int(inp[2:]))
-            end_time = time.time()
-            print(f"runtime: {end_time-start_time:.4f} seconds")
     except:
         print("try again")
     print("-------------------------------------")
