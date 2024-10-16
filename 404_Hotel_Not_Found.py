@@ -13,7 +13,7 @@ class Room_Node:
         return str(self.room_number)
     
     def show_room(self):
-        return f"Room : {self.room_number}\nChannel : {self.channel}"
+        return f"{self.channel} {self.room_number}"
     
     def get_height(self, node):
         return -1 if node is None else node.height
@@ -128,7 +128,8 @@ class AVL:
     def inorder_sort(node, f):
         if node is not None:
             AVL.inorder_sort(node.left, f)
-            f.write(node.show_room() + "\n\n")
+            f.write(node.show_room() + "\n")
+            print(node.show_room())
             AVL.inorder_sort(node.right, f)
     
     def get_last_room(self):
@@ -178,23 +179,22 @@ class Hotel:
     @runtime
     @profile
     def assign_rooms(self, plane, ship, train, car, guest):
-        total_rooms = plane * ship * train * car * guest
+        for g in range(guest):
+            self.AVL_hotel.insert(Hotel.morton_curve(0, 0, 0, 0, g), f"old_no_{0}_{0}_{0}_{0}_{g}")
+        total_rooms = plane * ship * train * car
         for i in range(total_rooms):
-            p = (i // (ship * train * car * guest)) % plane
-            s = (i // (train * car * guest)) % ship
-            t = (i // (car * guest)) % train
-            c = (i // guest) % car
-            g = i % guest
+            p = (i // (ship * train * car)) % plane
+            s = (i // (train * car)) % ship
+            t = (i // (car)) % train
+            c = (i) % car
             
-            self.AVL_hotel.insert(Hotel.morton_curve(p, s, t, c, g), f"no_{p+1}_{s+1}_{t+1}_{c+1}_{g+1}")
-        self.write_to_file()
+            self.AVL_hotel.insert(Hotel.morton_curve(p, s, t, c, 0), f"no_{p+1}_{s+1}_{t+1}_{c+1}_{0}")
         
     # delete a room number manually    
     @runtime
     @profile  
     def delete_room(self, room_number):
         self.AVL_hotel.delete(room_number)
-        self.write_to_file()
         print(room_number)
     
     # add a room number manually
@@ -202,7 +202,6 @@ class Hotel:
     @profile   
     def add_room(self, room_number):
         self.AVL_hotel.insert(room_number, "manual")
-        self.write_to_file()
     
     # search for a room number    
     @runtime
@@ -253,7 +252,7 @@ while True:
     print("[s] search <room number>")
     print("[r] show number of reserved room")
     print("[e] show number of empty room")
-    print("[l] show the last room")
+    print("[f] show all rooms (sorted) in file")
     print("[q] exit")
     inp = input("Select mode : ")
     try:
@@ -265,9 +264,9 @@ while True:
         elif inp == "r":
             print("--------------------------------------")
             hotel.show_number_of_reserved_room()
-        elif inp == "l":
+        elif inp == "f":
             print("--------------------------------------")
-            hotel.show_last_room_number()
+            hotel.write_to_file()
         elif inp[0] == "a":
             print(f"--------Adding room {inp[2:]}--------")
             hotel.add_room(int(inp[2:]))
