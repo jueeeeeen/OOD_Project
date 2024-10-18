@@ -226,6 +226,11 @@ class Hotel:
     @runtime_and_memory
     def show_number_of_reserved_room(self):
         print(f"Reserved rooms : {self.AVL_hotel.size:,} rooms")
+    
+    # (additional) show last room number (biggest room number)
+    @runtime_and_memory
+    def show_last_room_number(self):
+        print(f"last_room :\n{self.AVL_hotel.get_last_room().show_room()}")
         
 hotel = Hotel()      
 print("\n------------ Welcome to 404 Hotel Not Found ------------\n")
