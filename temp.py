@@ -180,7 +180,7 @@ class Hotel:
     @profile
     def assign_rooms(self, plane, ship, train, car, guest):
         for g in range(guest):
-            self.AVL_hotel.insert(Hotel.morton_curve(0, 0, 0, 0, g+1), f"old_no_{0}_{0}_{0}_{0}_{g+1}")
+            self.AVL_hotel.insert(Hotel.morton_curve(0, 0, 0, 0, g), f"old_no_{0}_{0}_{0}_{0}_{g}")
             
         total_rooms = plane * ship * train * car
         for i in range(total_rooms):
