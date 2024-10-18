@@ -1,6 +1,7 @@
 import time
 from memory_profiler import profile
 import psutil
+import psutil
 
 class Room_Node:
     def __init__(self, room_number, channel, left = None, right = None):
@@ -21,7 +22,7 @@ class Room_Node:
         
     def set_height(self):
         self.height = 1 + max(self.get_height(self.left), self.get_height(self.right))
-    
+            
     def get_balance(self):
         return self.get_height(self.left) - self.get_height(self.right)
 
@@ -145,20 +146,20 @@ class AVL:
 class Hotel:
     def __init__(self):
         self.AVL_hotel = AVL()
-        
+
     # formula for calculating the room number for each guest
     def morton_curve(p, s, t, c, g):
         args = (p, s, t, c, g)
         max_bits = max(arg.bit_length() for arg in args)
         result = 0
-        
+
         for i in range(max_bits):
             result |= ((p >> i) & 1) << (i * 5 + 0)
             result |= ((s >> i) & 1) << (i * 5 + 1)
             result |= ((t >> i) & 1) << (i * 5 + 2)
             result |= ((c >> i) & 1) << (i * 5 + 3)
             result |= ((g >> i) & 1) << (i * 5 + 4)
-        
+
         return result
     
     # To measure runtime and memory usage in each function
@@ -169,21 +170,22 @@ class Hotel:
 
             # Memory before execution
             mem_before = process.memory_info().rss
+            process = psutil.Process()
+
+            # Memory before execution
+            mem_before = process.memory_info().rss
             result = func(*args)
             mem_after = process.memory_info().rss
+            mem_after = process.memory_info().rss
             end_time = time.time()
+
 
             print(f"Runtime: {end_time - start_time:.5f} seconds")
             print(f"Memory usage: Before: {mem_before:.2f} Byte, After: {mem_after:.2f} Byte")
             print(f'Memory for this function: {mem_after - mem_before} Byte')
             return result
         return wrapper
-    
-    # sort the room number in AVL using inorder and write to file
-    def write_to_file(self):
-        with open("Hotel_Rooms", "w") as f:
-            AVL.inorder_sort(self.AVL_hotel.root, f)
-    
+
     # assign rooms for the guests from channels
     @runtime_and_memory
     def assign_rooms(self, plane, ship, train, car, guest):
@@ -204,7 +206,7 @@ class Hotel:
     def delete_room(self, room_number):
         self.AVL_hotel.delete(room_number)
         print(room_number)
-    
+
     # add a room number manually
     @runtime_and_memory  
     def add_room(self, room_number):
@@ -214,7 +216,7 @@ class Hotel:
     @runtime_and_memory  
     def search_room(self, room_number):
         print(self.AVL_hotel.search(room_number))
-    
+
     # show a number of the empty rooms
     @runtime_and_memory   
     def show_number_of_empty_room(self):
