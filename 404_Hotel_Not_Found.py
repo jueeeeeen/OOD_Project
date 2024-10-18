@@ -117,15 +117,6 @@ class AVL:
         if key == root.room_number: return root.show_room()
         if key < root.room_number: return AVL._search(root.left, key)
         return AVL._search(root.right, key)
-        
-    def print_tree(self):
-        AVL._print_tree(self.root)
-        
-    def _print_tree(node, level = 0):
-        if node is not None:
-            AVL._print_tree(node.right, level+1)
-            print('    '*level + str(node) )
-            AVL._print_tree(node.left, level+1)
 
     def inorder_sort(node, f):
         if node is not None:
@@ -246,7 +237,7 @@ while True:
         guest = int(input("Guest : "))
         
         print("\nPlease enter the number of each travel channel (stack)")
-        print("|   Plane   |   Ship   |   Train   |   Car   |")
+        print("|    Plane    |    Ship    |    Train    |     Car     |")
         plane = int(input("Plane : "))
         ship = int(input("Ship  : "))
         train = int(input("Train : "))
