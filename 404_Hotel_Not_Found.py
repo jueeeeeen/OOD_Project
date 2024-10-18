@@ -231,6 +231,7 @@ class Hotel:
     def show_last_room_number(self):
         print(f"last_room :\n{self.AVL_hotel.get_last_room().show_room()}")
 
+    # sorted and write to file
     def write_to_file(self):
         with open("Hotel_Rooms", "w") as f:
             AVL.inorder_sort(self.AVL_hotel.root, f)
@@ -261,6 +262,7 @@ while True:
     print("[r] show number of reserved room")
     print("[e] show number of empty room")
     print("[f] show all rooms (sorted) in file")
+    print("[l] show the last room")
     print("[q] exit")
     inp = input("Select mode : ")
     try:
@@ -275,6 +277,9 @@ while True:
         elif inp == "f":
             print("--------------------------------------")
             hotel.write_to_file()
+        elif inp == "l":
+            print("--------------------------------------")
+            hotel.show_last_room_number()
         elif inp[0] == "a":
             print(f"--------Adding room {inp[2:]}--------")
             hotel.add_room(int(inp[2:]))
