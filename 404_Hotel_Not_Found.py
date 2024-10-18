@@ -1,5 +1,6 @@
 import time
 from memory_profiler import profile
+import psutil
 
 class Room_Node:
     def __init__(self, room_number, channel, left = None, right = None):
@@ -160,13 +161,21 @@ class Hotel:
         
         return result
     
-    # to measure runtime in each function
-    def runtime(func):
+    # To measure runtime and memory usage in each function
+    def runtime_and_memory(func):
         def wrapper(*args):
             start_time = time.time()
+            process = psutil.Process()
+
+            # Memory before execution
+            mem_before = process.memory_info().rss
             result = func(*args)
+            mem_after = process.memory_info().rss
             end_time = time.time()
+
             print(f"Runtime: {end_time - start_time:.5f} seconds")
+            print(f"Memory usage: Before: {mem_before:.2f} Byte, After: {mem_after:.2f} Byte")
+            print(f'Memory for this function: {mem_after - mem_before} Byte')
             return result
         return wrapper
     
@@ -176,8 +185,7 @@ class Hotel:
             AVL.inorder_sort(self.AVL_hotel.root, f)
     
     # assign rooms for the guests from channels
-    @runtime
-    @profile
+    @runtime_and_memory
     def assign_rooms(self, plane, ship, train, car, guest):
         for g in range(guest):
             self.AVL_hotel.insert(Hotel.morton_curve(0, 0, 0, 0, g+1), f"old_no_{0}_{0}_{0}_{0}_{g+1}")
@@ -192,53 +200,45 @@ class Hotel:
             self.AVL_hotel.insert(Hotel.morton_curve(p, s, t, c, 0), f"no_{p+1}_{s+1}_{t+1}_{c+1}_{0}")
         
     # delete a room number manually    
-    @runtime
-    @profile  
+    @runtime_and_memory 
     def delete_room(self, room_number):
         self.AVL_hotel.delete(room_number)
         print(room_number)
     
     # add a room number manually
-    @runtime
-    @profile   
+    @runtime_and_memory  
     def add_room(self, room_number):
         self.AVL_hotel.insert(room_number, "manual")
     
     # search for a room number    
-    @runtime
-    @profile    
+    @runtime_and_memory  
     def search_room(self, room_number):
         print(self.AVL_hotel.search(room_number))
     
     # show a number of the empty rooms
-    @runtime
-    @profile    
+    @runtime_and_memory   
     def show_number_of_empty_room(self):
         print(f"Empty rooms : {self.AVL_hotel.get_last_room().room_number - self.AVL_hotel.size:,} rooms")
         
     # (additional) show a number of the reserved rooms (nodes in AVL)
-    @runtime
-    @profile
+    @runtime_and_memory
     def show_number_of_reserved_room(self):
         print(f"Reserved rooms : {self.AVL_hotel.size:,} rooms")
-
-    # (additional) show last room number (biggest room number)
-    @runtime
-    @profile
-    def show_last_room_number(self):
-        print(f"last_room :\n{self.AVL_hotel.get_last_room().show_room()}")
         
 hotel = Hotel()      
 print("\n------------ Welcome to 404 Hotel Not Found ------------\n")
-print("Please Enter a number of each traveling channel (stack)")
-print("|   Plane   |   Ship   |   Train   |   Car   |  Guest  |")
+print("Please enter the number of guests in the hotel")
+
 while True:
     try:
+        guest = int(input("Guest : "))
+        
+        print("\nPlease enter the number of each travel channel (stack)")
+        print("|   Plane   |   Ship   |   Train   |   Car   |")
         plane = int(input("Plane : "))
         ship = int(input("Ship  : "))
         train = int(input("Train : "))
         car = int(input("Car   : "))
-        guest = int(input("Guest : "))
         break
     except ValueError:
         print("Invalid value please try again")
