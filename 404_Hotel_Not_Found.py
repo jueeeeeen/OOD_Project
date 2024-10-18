@@ -186,6 +186,11 @@ class Hotel:
             return result
         return wrapper
 
+    # sort the room number in AVL using inorder and write to file
+    def write_to_file(self):
+        with open("Hotel_Rooms", "w") as f:
+            AVL.inorder_sort(self.AVL_hotel.root, f)
+            
     # assign rooms for the guests from channels
     @runtime_and_memory
     def assign_rooms(self, plane, ship, train, car, guest):
@@ -261,6 +266,7 @@ while True:
     print("[r] show number of reserved room")
     print("[e] show number of empty room")
     print("[f] show all rooms (sorted) in file")
+    print("[l] show last room number")
     print("[q] exit")
     inp = input("Select mode : ")
     try:
@@ -275,6 +281,9 @@ while True:
         elif inp == "f":
             print("--------------------------------------")
             hotel.write_to_file()
+        elif inp == "l":
+            hotel.show_last_room_number()
+            print("--------------------------------------")
         elif inp[0] == "a":
             print(f"--------Adding room {inp[2:]}--------")
             hotel.add_room(int(inp[2:]))
