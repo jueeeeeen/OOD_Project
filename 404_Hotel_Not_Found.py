@@ -42,7 +42,7 @@ class AVL:
         elif room_number > node.room_number:
             node.right = self._insert(node.right, room_number, channel)
         else:
-            print(f"Can't add {room_number}")
+            print(f"Already added {room_number}")
             
         node.set_height()        
         new_root = AVL.rebalance(node)
@@ -184,7 +184,7 @@ class Hotel:
     @runtime_and_memory
     def assign_rooms(self, plane, ship, train, car, guest):
         for g in range(guest):
-            self.AVL_hotel.insert(Hotel.morton_curve(0, 0, 0, 0, g+1), f"old_no_{0}_{0}_{0}_{0}_{g+1}")
+            self.AVL_hotel.insert(Hotel.morton_curve(0, 0, 0, 0, g+1), f"no_{0}_{0}_{0}_{0}_{g+1}")
             
         total_rooms = plane * ship * train * car
         for i in range(total_rooms):
@@ -228,10 +228,10 @@ class Hotel:
         
 hotel = Hotel()      
 print("\n------------ Welcome to 404 Hotel Not Found ------------\n")
-print("Please enter the number of guests in the hotel")
 
 while True:
     try:
+        print("Please enter the number of guests in the hotel")
         guest = int(input("Guest : "))
         
         print("\nPlease enter the number of each travel channel (stack)")
