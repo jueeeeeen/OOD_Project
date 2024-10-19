@@ -180,7 +180,6 @@ class Hotel:
 
     # assign rooms for the guests from channels
     @runtime_and_memory
-    # @profile
     def assign_rooms(self, plane, ship, train, car, guest):
         for g in range(guest):
             self.AVL_hotel.insert(Hotel.morton_curve(0, 0, 0, 0, g+1), f"no_{0}_{0}_{0}_{0}_{g+1}")
@@ -195,47 +194,40 @@ class Hotel:
         
     # delete a room number manually    
     @runtime_and_memory
-    # @profile
     def delete_room(self, room_number):
         self.AVL_hotel.delete(room_number)
         print(room_number)
 
     # add a room number manually
     @runtime_and_memory
-    # @profile
     def add_room(self, room_number):
         self.AVL_hotel.insert(room_number, "manual")
     
     # search for a room number    
     @runtime_and_memory
-    # @profile
     def search_room(self, room_number):
         print(self.AVL_hotel.search(room_number))
 
     # show a number of the empty rooms
     @runtime_and_memory
-    # @profile
     def show_number_of_empty_room(self):
         print(f"Empty rooms : {self.AVL_hotel.get_last_room().room_number - self.AVL_hotel.size:,} rooms")
-
-    # show a number of the reserved rooms (nodes in AVL)
+        
+    # sorted and write to file
     @runtime_and_memory
-    # @profile
-    def show_number_of_reserved_room(self):
-        print(f"Reserved rooms : {self.AVL_hotel.size:,} rooms")
-
-    # show last room number (biggest room number)
-    @runtime_and_memory
-    # @profile
-    def show_last_room_number(self):
-        print(f"last_room :\n{self.AVL_hotel.get_last_room().show_room()}")
-
-    # sorted and write to 
-    @runtime_and_memory
-    # @profile
     def write_to_file(self):
         with open("Hotel_Rooms", "w") as f:
             AVL.inorder_sort(self.AVL_hotel.root, f)
+
+    # (Additional) show a number of the reserved rooms (nodes in AVL)
+    @runtime_and_memory
+    def show_number_of_reserved_room(self):
+        print(f"Reserved rooms : {self.AVL_hotel.size:,} rooms")
+
+    # (Additional) show last room number (biggest room number)
+    @runtime_and_memory
+    def show_last_room_number(self):
+        print(f"last_room :\n{self.AVL_hotel.get_last_room().show_room()}")
 
 hotel = Hotel()      
 print("\n------------ Welcome to 404 Hotel Not Found ------------\n")
