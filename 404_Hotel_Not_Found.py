@@ -42,7 +42,7 @@ class AVL:
         elif room_number > node.room_number:
             node.right = self._insert(node.right, room_number, channel)
         else:
-            print(f"Already added {room_number}")
+            print(f"Can't add {room_number}")
             
         node.set_height()        
         new_root = AVL.rebalance(node)
