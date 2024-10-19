@@ -1,5 +1,4 @@
 import time
-from memory_profiler import profile
 import psutil
 
 class Room_Node:
@@ -43,7 +42,7 @@ class AVL:
         elif room_number > node.room_number:
             node.right = self._insert(node.right, room_number, channel)
         else:
-            print(f"Can't add {room_number}")
+            print(f"Already added {room_number}")
             
         node.set_height()        
         new_root = AVL.rebalance(node)
@@ -184,8 +183,7 @@ class Hotel:
     # @profile
     def assign_rooms(self, plane, ship, train, car, guest):
         for g in range(guest):
-            self.AVL_hotel.insert(Hotel.morton_curve(0, 0, 0, 0, g+1), f"old_no_{0}_{0}_{0}_{0}_{g+1}")
-            
+            self.AVL_hotel.insert(Hotel.morton_curve(0, 0, 0, 0, g+1), f"no_{0}_{0}_{0}_{0}_{g+1}")
         total_rooms = plane * ship * train * car
         for i in range(total_rooms):
             p = (i // (ship * train * car)) % plane
@@ -232,21 +230,27 @@ class Hotel:
     def show_last_room_number(self):
         print(f"last_room :\n{self.AVL_hotel.get_last_room().show_room()}")
 
+    # sorted and write to 
+    @runtime_and_memory
+    # @profile
     def write_to_file(self):
         with open("Hotel_Rooms", "w") as f:
             AVL.inorder_sort(self.AVL_hotel.root, f)
 
 hotel = Hotel()      
 print("\n------------ Welcome to 404 Hotel Not Found ------------\n")
-print("Please Enter a number of each traveling channel (stack)")
-print("|   Plane   |   Ship   |   Train   |   Car   |  Guest  |")
+print("Please enter the number of guests in the hotel")
+
 while True:
     try:
+        guest = int(input("Guest : "))
+        
+        print("\nPlease enter the number of each travel channel (stack)")
+        print("|   Plane   |   Ship   |   Train   |   Car   |")
         plane = int(input("Plane : "))
         ship = int(input("Ship  : "))
         train = int(input("Train : "))
         car = int(input("Car   : "))
-        guest = int(input("Guest : "))
         break
     except ValueError:
         print("Invalid value please try again")
@@ -262,6 +266,7 @@ while True:
     print("[r] show number of reserved room")
     print("[e] show number of empty room")
     print("[f] show all rooms (sorted) in file")
+    print("[l] show the last room")
     print("[q] exit")
     inp = input("Select mode : ")
     try:
@@ -275,7 +280,10 @@ while True:
             hotel.show_number_of_reserved_room()
         elif inp == "f":
             print("--------------------------------------")
-            hotel.write_to_file()
+            hotel.write_to_file() 
+        elif inp == "l":
+            print("--------------------------------------")
+            hotel.show_last_room_number()
         elif inp[0] == "a":
             print(f"--------Adding room {inp[2:]}--------")
             hotel.add_room(int(inp[2:]))
